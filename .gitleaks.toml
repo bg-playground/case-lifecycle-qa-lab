@@ -1,0 +1,13 @@
+# gitleaks config: the default ruleset, plus skipping generated and
+# dependency folders that are not committed anyway.
+[extend]
+useDefault = true
+
+[allowlist]
+description = "generated output and dependencies"
+paths = [
+  '''node_modules/''',
+  '''playwright-report/''',
+  '''test-results/''',
+  '''dist/''',
+]

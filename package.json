@@ -1,0 +1,40 @@
+{
+  "name": "case-lifecycle-qa-lab",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Modeled on Pega Platform public DX API docs: a from-scratch mock case API and Intake screen, with Playwright tests traced to BGSTM requirements.",
+  "keywords": [
+    "playwright",
+    "qa",
+    "test-automation",
+    "case-management",
+    "typescript",
+    "bgstm",
+    "dx-api-mock",
+    "mock-server",
+    "accessibility",
+    "visual-regression"
+  ],
+  "license": "MIT",
+  "type": "module",
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "build:web": "tsc -p tsconfig.web.json",
+    "typecheck": "tsc -p tsconfig.json --noEmit && tsc -p tsconfig.web.json --noEmit",
+    "start:mock": "npm run build:web && tsx src/mock/server.ts",
+    "test": "playwright test",
+    "boundary": "tsx scripts/boundary_check.ts",
+    "ci:local": "bash scripts/ci_local.sh",
+    "docs:assets": "tsx scripts/render_docs_assets.ts"
+  },
+  "devDependencies": {
+    "@fontsource/inter": "5.3.0",
+    "@playwright/test": "1.64.0",
+    "@types/node": "^20.19.0",
+    "tsx": "4.23.15",
+    "typescript": "5.9.3",
+    "yaml": "2.9.1"
+  }
+}

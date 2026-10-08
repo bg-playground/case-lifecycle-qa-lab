@@ -1,0 +1,87 @@
+{
+  "$comment": "Documented exemptions for scripts/boundary_check.ts. Every entry needs a reason. Keep this list short.",
+  "emailDomainSuffixes": [
+    {
+      "suffix": ".example",
+      "reason": "RFC 2606 reserved TLD; all synthetic emails use it"
+    },
+    {
+      "suffix": ".invalid",
+      "reason": "RFC 2606 reserved TLD"
+    }
+  ],
+  "urlHosts": [
+    {
+      "host": "127.0.0.1",
+      "reason": "the local mock server"
+    },
+    {
+      "host": "localhost",
+      "reason": "the local mock server"
+    },
+    {
+      "host": "docs.pega.com",
+      "reason": "public Pega documentation, cited for API shapes"
+    },
+    {
+      "host": "academy.pega.com",
+      "reason": "public Pega Academy topics, cited for DX API and SLA concepts"
+    },
+    {
+      "host": "support.pega.com",
+      "reason": "public Pega support article on missing data-testid attributes"
+    },
+    {
+      "host": "www.pega.com",
+      "reason": "Pega trademark guidelines and terms (attribution source)"
+    },
+    {
+      "host": "github.com",
+      "reason": "BGSTM and framework repos, CI badge"
+    },
+    {
+      "host": "bg-playground.github.io",
+      "reason": "public BGSTM docs site"
+    },
+    {
+      "host": "playwright.dev",
+      "reason": "Playwright documentation"
+    },
+    {
+      "host": "docs.github.com",
+      "reason": "GitHub Actions documentation"
+    },
+    {
+      "host": "www.rfc-editor.org",
+      "reason": "RFC references (OAuth 2.0, reserved domains)"
+    },
+    {
+      "host": "img.shields.io",
+      "reason": "static README badges (license, Playwright, TypeScript)"
+    },
+    {
+      "host": "www.w3.org",
+      "reason": "XML namespace URI in SVG files (an identifier, not a link)"
+    }
+  ],
+  "urlHostSuffixes": [
+    {
+      "suffix": ".example",
+      "reason": "RFC 2606 reserved TLD"
+    },
+    {
+      "suffix": ".invalid",
+      "reason": "RFC 2606 reserved TLD"
+    }
+  ],
+  "skipPaths": [
+    {
+      "path": "package-lock.json",
+      "checks": [
+        "email",
+        "url"
+      ],
+      "reason": "npm registry tarball URLs and integrity hashes; still scanned for denied terms and @pega packages"
+    }
+  ]
+}

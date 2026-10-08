@@ -1,0 +1,10 @@
+node_modules/
+dist/
+playwright-report/
+test-results/
+blob-report/
+.env
+*.log
+
+# Private boundary terms: never commit (see scripts/boundary_check.ts)
+.boundary-private-terms

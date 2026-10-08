@@ -1,0 +1,84 @@
+name: ci
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  GITLEAKS_VERSION: 8.30.1
+  GITLEAKS_SHA256: 551f6fc83ea457d62a0d98237cbad105af8d557003051f41f3e7ca7b3f2470eb
+
+jobs:
+  checks:
+    # Pinned: ubuntu-latest moves to Ubuntu 26 on 2026-10-19, which could shift the
+    # visual baselines. Bump deliberately and refresh baselines in the same PR.
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0 # full history for gitleaks
+
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci --no-audit --no-fund
+
+      - name: Install Playwright Chromium
+        run: npx playwright install --with-deps chromium
+
+      - name: Typecheck
+        run: npm run -s typecheck
+
+      - name: Boundary check
+        env:
+          # Private terms come from an Actions secret, never from the repo.
+          BOUNDARY_PRIVATE_TERMS: ${{ secrets.BOUNDARY_PRIVATE_TERMS }}
+          # Fail closed (missing secret = failed run) on pushes, manual runs and
+          # same-repo PRs. Fork PRs cannot read secrets: they warn loudly and run
+          # the generic rules only.
+          BOUNDARY_REQUIRE_PRIVATE_TERMS: ${{ github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository }}
+        run: |
+          npm run -s boundary -- --self-test
+          npm run -s boundary
+
+      - name: gitleaks
+        run: |
+          curl -sSfL -o gitleaks.tgz "https://github.com/gitleaks/gitleaks/releases/download/v${GITLEAKS_VERSION}/gitleaks_${GITLEAKS_VERSION}_linux_x64.tar.gz"
+          echo "${GITLEAKS_SHA256}  gitleaks.tgz" | sha256sum -c -
+          tar -xzf gitleaks.tgz gitleaks && rm gitleaks.tgz
+          ./gitleaks git . --no-banner --redact --exit-code 1 --config .gitleaks.toml
+          rm gitleaks
+
+      - name: Playwright tests (starts the mock via webServer)
+        run: npx playwright test
+        env:
+          CI: 'true'
+
+      - name: Upload HTML report
+        if: ${{ !cancelled() }}
+        uses: actions/upload-artifact@v7
+        with:
+          name: playwright-report
+          path: playwright-report/
+          retention-days: 14
+
+      - name: Upload traces
+        if: ${{ !cancelled() }}
+        uses: actions/upload-artifact@v7
+        with:
+          name: playwright-traces
+          path: test-results/
+          retention-days: 14

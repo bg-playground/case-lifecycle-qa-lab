@@ -1,0 +1,25 @@
+@font-face { font-family: "Inter"; font-weight: 400; font-display: block; src: url("/app/fonts/inter-400.woff2") format("woff2"); }
+@font-face { font-family: "Inter"; font-weight: 600; font-display: block; src: url("/app/fonts/inter-600.woff2") format("woff2"); }
+:root { font-family: "Inter", sans-serif; color: #1b1f24; background: #f6f7f9; }
+body { margin: 0 auto; max-width: 52rem; padding: 1.5rem; }
+.banner__note { font-size: 0.85rem; color: #5b6470; margin: 0; }
+h1 { font-size: 1.5rem; font-weight: 600; margin: 0.25rem 0 1rem; }
+.case-id { display: inline-block; width: 6.5em; font-weight: 400; color: #5b6470; font-variant-numeric: tabular-nums; }
+.stages ol { display: flex; gap: 0.5rem; list-style: none; padding: 0; margin: 0 0 1.5rem; flex-wrap: wrap; }
+.stages li { padding: 0.35rem 0.75rem; border-radius: 999px; background: #e3e7ec; font-size: 0.9rem; }
+.stages li[data-status="completed"] { background: #d4ecd9; }
+.stages li[aria-current="step"] { background: #1f5fbf; color: #fff; font-weight: 600; }
+.assignment { background: #fff; border: 1px solid #d6dbe1; border-radius: 0.5rem; padding: 1.25rem; }
+.sla { color: #5b6470; font-size: 0.85rem; margin-top: -0.5rem; }
+.fields { display: grid; grid-template-columns: 1fr 1fr; gap: 0.9rem 1.25rem; }
+.field { display: flex; flex-direction: column; gap: 0.3rem; }
+.field--wide { grid-column: 1 / -1; }
+.field label { font-weight: 600; font-size: 0.9rem; }
+.field input, .field select, .field textarea { font: inherit; padding: 0.45rem 0.55rem; border: 1px solid #aab2bc; border-radius: 0.3rem; }
+.field input[type="checkbox"] { width: 1.1rem; height: 1.1rem; }
+.field [aria-invalid="true"] { border-color: #b3261e; }
+.field__error { color: #b3261e; font-size: 0.8rem; }
+.errors { background: #fdecea; border: 1px solid #f2b8b5; padding: 0.75rem; border-radius: 0.3rem; margin-bottom: 1rem; }
+.actions { margin-top: 1.25rem; }
+button { font: inherit; font-weight: 600; background: #1f5fbf; color: #fff; border: 0; padding: 0.55rem 1.25rem; border-radius: 0.3rem; cursor: pointer; }
+.status { margin-top: 1rem; }

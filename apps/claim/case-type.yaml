@@ -1,0 +1,172 @@
+# Auto Insurance Claim: a synthetic case type, handwritten for this repo.
+#
+# This file is NOT a Pega export. It is a plain description of a demo case
+# type, written from scratch. It borrows only general case-management
+# vocabulary (case type, stage, step, assignment, SLA goal/deadline).
+# All data is synthetic: emails use .example, phones use 555-01xx.
+#
+# The mock DX API (src/mock) reads this file to decide which assignment
+# comes next and which SLA applies. The slice implements the primary path
+# linearly; routing rules and the alternate stage are declared for the
+# planned lifecycle test generator and are not yet executed by the mock.
+
+caseType:
+  id: Synthetic-Claims-Work-AutoClaim
+  name: Auto Insurance Claim
+  idPrefix: C-
+  firstId: 1001
+
+stages:
+  - id: Intake
+    label: Intake
+    kind: primary
+    steps:
+      - id: CollectIncidentDetails
+        label: Collect incident details
+        type: assignment
+        assignTo: { worklist: claimant }
+        form: IntakeForm
+        sla: IntakeAssignment
+      - id: VerifyPolicy
+        label: Verify policy
+        type: automated
+        rule: policyMustBeActive
+      - id: UploadDocuments
+        label: Upload documents
+        type: optional
+
+  - id: Triage
+    label: Triage
+    kind: primary
+    steps:
+      - id: AssignSeverity
+        label: Assign severity
+        type: assignment
+        assignTo: { workqueue: Triage }
+        form: SeverityForm
+        sla: TriageAssignment
+      - id: Route
+        label: Route
+        type: decision
+        routes:
+          - when: { field: severity, equals: High }
+            goTo: FraudReview
+          - when: { field: fraudSuspected, equals: true }
+            goTo: FraudReview
+          - otherwise: Assessment
+
+  - id: Assessment
+    label: Assessment
+    kind: primary
+    steps:
+      - id: AdjusterReview
+        label: Adjuster review
+        type: assignment
+        assignTo: { workqueue: Adjusters }
+        sla: AssessmentAssignment
+      - id: EstimateDamage
+        label: Estimate damage
+        type: assignment
+        assignTo: { workqueue: Adjusters }
+        sla: AssessmentAssignment
+
+  - id: Settlement
+    label: Settlement
+    kind: primary
+    steps:
+      - id: ApprovePayout
+        label: Approve payout
+        type: assignment
+        assignTo: { workqueue: Adjusters }
+        escalate:
+          when: { field: payout, greaterThan: 10000 }
+          to: { workqueue: ClaimsManagers }
+          label: Manager approval
+      - id: NotifyClaimant
+        label: Notify claimant
+        type: automated
+
+  - id: Resolution
+    label: Resolution
+    kind: primary
+    resolutionStatuses:
+      - Resolved-Approved
+      - Resolved-Rejected
+      - Resolved-Withdrawn
+
+  - id: FraudReview
+    label: Fraud Review
+    kind: alternate
+    steps:
+      - id: Investigate
+        label: Investigate
+        type: assignment
+        assignTo: { workqueue: SpecialInvestigations }
+      - id: FraudDecision
+        label: Decision
+        type: decision
+        routes:
+          - when: { field: fraudConfirmed, equals: true }
+            resolveAs: Resolved-Rejected
+          - otherwise: Assessment
+
+dataObjects:
+  Claimant:
+    fields:
+      fullName: { type: text, required: true }
+      email: { type: email, required: true }
+      phone: { type: phone, required: false }
+  Policy:
+    fields:
+      policyNumber: { type: text, required: true, pattern: "^POL-[0-9]{6}$" }
+      coverage: { type: text }
+      deductible: { type: currency }
+      status: { type: text, enum: [Active, Lapsed] }
+  Vehicle:
+    fields:
+      vin: { type: text, required: true, pattern: "^[A-HJ-NPR-Z0-9]{17}$" }
+      make: { type: text }
+      model: { type: text }
+  Claim:
+    fields:
+      incidentDate: { type: date, required: true }
+      description: { type: text, required: true }
+      severity: { type: text, enum: [Low, Medium, High] }
+      fraudSuspected: { type: boolean }
+      estimate: { type: currency }
+      payout: { type: currency }
+  Document:
+    fields:
+      documentType: { type: text, enum: [Photo, PoliceReport, RepairQuote] }
+      fileName: { type: text }
+
+# Fields the Intake form collects (CollectIncidentDetails).
+forms:
+  IntakeForm:
+    - { field: Claimant.fullName, label: Full name, testId: fullName }
+    - { field: Claimant.email, label: Email, testId: email }
+    - { field: Claimant.phone, label: Phone, testId: phone }
+    - { field: Policy.policyNumber, label: Policy number, testId: policyNumber }
+    - { field: Vehicle.vin, label: Vehicle VIN, testId: vin }
+    - { field: Claim.incidentDate, label: Incident date, testId: incidentDate }
+    - { field: Claim.description, label: What happened?, testId: description }
+  SeverityForm:
+    - { field: Claim.severity, label: Severity, testId: severity }
+    - { field: Claim.fraudSuspected, label: Fraud suspected, testId: fraudSuspected }
+
+# SLA design values (goal = desired completion, deadline = late).
+# Durations use ISO 8601. Passed-deadline escalation is declared for the
+# generator; the mock reports goal/deadline timestamps only.
+slas:
+  IntakeAssignment: { goal: PT2H, deadline: PT24H }
+  TriageAssignment: { goal: PT4H, deadline: PT24H }
+  AssessmentAssignment:
+    goal: P3D
+    deadline: P5D
+    passedDeadline: { every: P1D, times: 3, escalateTo: { workqueue: ClaimsManagers } }
+
+# Synthetic reference data used by the automated VerifyPolicy step.
+referenceData:
+  policies:
+    - { policyNumber: POL-100001, coverage: Comprehensive, deductible: 500, status: Active }
+    - { policyNumber: POL-100002, coverage: Liability, deductible: 1000, status: Lapsed }

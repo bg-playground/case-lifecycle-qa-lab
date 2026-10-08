@@ -1,0 +1,44 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Auto Insurance Claim (mock)</title>
+    <link rel="stylesheet" href="/app/styles.css" />
+  </head>
+  <body>
+    <!--
+      Demo screen written from scratch for case-lifecycle-qa-lab.
+      Not Pega UI code: no Pega/Cosmos components or markup are used.
+      It follows the publicly documented Constellation test-ID convention
+      (data-testid="<testId>:input") so the same locator strategy applies.
+    -->
+    <header class="banner">
+      <p class="banner__note">Synthetic demo. Mock case API, not Pega software.</p>
+      <h1>Auto Insurance Claim <span data-testid="caseId:text" class="case-id"></span></h1>
+    </header>
+
+    <nav aria-label="Case stages" class="stages">
+      <ol data-testid="caseStages:list"></ol>
+    </nav>
+
+    <main>
+      <section aria-labelledby="assignment-heading" class="assignment">
+        <h2 id="assignment-heading" data-testid="assignmentName:heading">Loading…</h2>
+        <p data-testid="sla:text" class="sla"></p>
+        <div role="alert" data-testid="errors:alert" class="errors" hidden></div>
+        <form aria-labelledby="assignment-heading" novalidate>
+          <div data-testid="fields:container" class="fields"></div>
+          <div class="actions">
+            <!-- No data-testid on purpose: mirrors the documented gap on case action
+                 buttons, so tests use getByRole('button', { name: 'Submit' }). -->
+            <button type="submit">Submit</button>
+          </div>
+        </form>
+      </section>
+      <p role="status" data-testid="status:text" class="status"></p>
+    </main>
+
+    <script type="module" src="/app/intake.js"></script>
+  </body>
+</html>
