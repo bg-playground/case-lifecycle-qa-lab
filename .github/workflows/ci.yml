@@ -82,3 +82,30 @@ jobs:
           name: playwright-traces
           path: test-results/
           retention-days: 14
+
+      # GitHub Pages: publish ONLY the mock-run Playwright HTML report, only from
+      # a green push to main. It contains this repo's mock screen and data only.
+      - name: Package HTML report for GitHub Pages
+        if: ${{ success() && github.event_name == 'push' && github.ref == 'refs/heads/main' }}
+        uses: actions/upload-pages-artifact@v5
+        with:
+          path: playwright-report/
+
+  pages:
+    needs: checks
+    if: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' }}
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    permissions:
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deploy.outputs.page_url }}
+    concurrency:
+      group: pages
+      cancel-in-progress: false
+    steps:
+      - name: Deploy HTML report to GitHub Pages
+        id: deploy
+        uses: actions/deploy-pages@v5

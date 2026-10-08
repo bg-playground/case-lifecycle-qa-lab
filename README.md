@@ -124,6 +124,8 @@ The BGSTM reporter itself isn't wired in yet, because the `@bgstm/*` packages ar
 
 ## Sample output (from the mock)
 
+**Live report:** the HTML report (with traces) from the latest green run on `main` is published at [bg-playground.github.io/case-lifecycle-qa-lab](https://bg-playground.github.io/case-lifecycle-qa-lab/). It contains only this repo's mock screen and synthetic data.
+
 The HTML report from a local run of the four tests:
 
 ![Playwright HTML report: four passing tests, TC-CLM-001 to TC-CLM-004, tagged ui, api, concurrency, lifecycle and visual](docs/assets/sample-html-report.png)
